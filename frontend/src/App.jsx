@@ -6,11 +6,13 @@ import { ToastContainer } from 'react-toastify';
 import Home from './component/Home';
 import { AuthContextProvider } from './context/AuthContext';
 import { VerifyUser } from './utils/VerifyUser';
+import { SocketContextProvider } from './context/SocketContext';
 
 function App() {
   return (
     <AuthContextProvider>
-      <Routes>
+      <SocketContextProvider>
+         <Routes>
         
         <Route path='/login' element={<LoginPage/>}/>
         <Route path='/register' element={<RegisterPage/>}/>
@@ -20,6 +22,8 @@ function App() {
         </Route>
       </Routes>
       <ToastContainer/>
+        </SocketContextProvider>
+     
     </AuthContextProvider>
   )
 }

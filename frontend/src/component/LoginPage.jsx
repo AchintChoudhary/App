@@ -1,9 +1,9 @@
 import { useContext, useState } from 'react';
 import {Link,useNavigate} from 'react-router-dom'
-import axios from 'axios'
+
  import { toast } from 'react-toastify';
 import { AuthContext } from '../context/AuthContext';
-
+import axiosInstance from '../utils/axiosConfig'; 
 function LoginPage(){
 
 const {setAuthUser}=useContext(AuthContext)
@@ -22,10 +22,10 @@ e.preventDefault()
 
     setLoading(true)
         try {
-            const response =await axios.post(`http://localhost:3000/users/login`,{
-              email:email,
-              password:password
-            });
+            const response = await axiosInstance.post(`/users/login`, {
+  email: email,
+  password: password
+});
 const data=response.data;
 if(data.success===false){
   setLoading(false)

@@ -1,8 +1,8 @@
 
-import axios from 'axios';
+
 import {useState} from 'react'
 import {Link,useNavigate} from "react-router-dom"
-
+import axiosInstance from '../utils/axiosConfig';
  import { toast } from 'react-toastify';
 
 function RegisterPage() {
@@ -40,7 +40,7 @@ try {
 
 
   }
-  const response= await axios.post(`http://localhost:3000/users/register`,user)
+const response = await axiosInstance.post(`/users/register`, user);
   const data=response.data;
 if(data.success===false){
   setLoading(false)

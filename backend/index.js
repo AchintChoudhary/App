@@ -3,7 +3,7 @@ import { config } from 'dotenv'
 import { connect } from 'mongoose'
 import cors from "cors";     
 config()
-const app=express()
+import {app,server} from './socket/socket.js'
 const port=process.env.PORT
 const mongoURL = process.env.MONGO_URL; 
 import userRouter from "./routes/user.routes.js"
@@ -44,6 +44,6 @@ app.get('/',(req,res)=>{
 })
 
 
-app.listen(port,()=>{
+server.listen(port,()=>{
     console.log(`app listening on port ${port}`)
 })

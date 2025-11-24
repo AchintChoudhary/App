@@ -6,4 +6,7 @@ import { getUserBySearch,getCurrentChatters } from "../controllers/search.contro
 router.get('/getuser',isLogin,getUserBySearch)
 router.get("/getchatters",isLogin,getCurrentChatters)
 
+
+
+
 export default router;
