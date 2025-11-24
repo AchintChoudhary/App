@@ -1,54 +1,48 @@
-import { useState, useContext, useEffect,useRef } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { FaPaperPlane, FaEllipsisV, FaArrowLeft } from "react-icons/fa";
 import Lottie from "lottie-react";
 import axiosInstance from "../utils/axiosConfig";
 import { AuthContext } from "../context/AuthContext";
 import userConversation from "../Zustand/UserConversation";
 import animationData from "../animation/animation.json";
-import notify from '../assets/notification.mp3'
+import notify from "../assets/notification.mp3";
 import { SocketContext } from "../context/SocketContext";
-
 
 const MessageContainer = () => {
   const { authUser, setAuthUser } = useContext(AuthContext);
-  const {socket} =useContext(SocketContext)
+  const { socket } = useContext(SocketContext);
   const [isMobile, setIsMobile] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [newMessage,setNewMessage]=useState('')
-  const lastMessageRef=useRef()
+  const [newMessage, setNewMessage] = useState("");
+  const lastMessageRef = useRef();
   const {
     selectedConversation,
     setMessages,
     setSelectedConversation,
     messages,
   } = userConversation();
+
   const [loading, setLoading] = useState(false);
 
-useEffect(() => {
-  
-setTimeout(() => {
-  lastMessageRef?.current?.scrollIntoView({ behavior: "smooth" });
-}, 100);
-  
-}, [messages])
+  //Auto Scroll
+  useEffect(() => {
+    setTimeout(() => {
+      lastMessageRef?.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  }, [messages]);
 
+  useEffect(() => {
+    socket?.on("newMessage", (newMessage) => {
+      const sound = new Audio(notify);
 
-useEffect(()=>{
-  socket?.on('newMessage',(newMessage)=>{
-    const sound=new Audio(notify);
-
-    sound.play();
-    setMessages([...messages,newMessage])
-  })
-  return ()=>{
-    socket?.off('newMessage')
-  
-  }
-
-},[socket,setMessages,messages])
-
-
+      sound.play();
+      setMessages([...messages, newMessage]);
+    });
+    return () => {
+      socket?.off("newMessage");
+    };
+  }, [socket, setMessages, messages]);
 
   useEffect(() => {
     const getMessage = async () => {
@@ -78,30 +72,29 @@ useEffect(()=>{
     }
   }, [selectedConversation?._id, setMessages]);
 
-
-const handleSubmit=async(e)=>{
-e.preventDefault()
-setLoading(true)
-  try{
-const res=await axiosInstance.post(`messages/send/${selectedConversation?._id}`,{message:newMessage});
-    const data=res.data;
-if(data.success === false) {
-          setLoading(false);
-          console.log(data.messages);
-          return;
-        }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axiosInstance.post(
+        `messages/send/${selectedConversation?._id}`,
+        { message: newMessage }
+      );
+      const data = res.data;
+      if (data.success === false) {
         setLoading(false);
-        setMessages([...messages,data]);
-        setNewMessage("")
-  }catch(error){
-    console.log(error.message)
-    setLoading(false)
-  }
-}
+        console.log(data.messages);
+        return;
+      }
 
-
-
+      setLoading(false);
+      setMessages([...messages, data]);
+      setNewMessage("");
+    } catch (error) {
+      console.log(error.message);
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -177,47 +170,56 @@ if(data.success === false) {
                   </div>
                 )}
                 {/* Messages Container */}
-               {/* Messages Container */}
-{!loading && messages?.length > 0 && (
-  <div className="flex-1 overflow-y-auto p-4 bg-gray-900" ref={lastMessageRef}>
-    <div className="space-y-4">
-      {messages.map((message, index) => (
-        <div
-          key={message._id || index}
-          className={`flex ${
-            message.senderId === authUser._id
-              ? "justify-end"
-              : "justify-start"
-          }`}
-        >
-          <div
-            className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-              message.senderId === authUser._id
-                ? "bg-blue-600 text-white rounded-br-none"
-                : "bg-gray-700 text-white rounded-bl-none"
-            }`}
-          >
-            <p className="text-sm">{message.message}</p>
-            <p className="text-xs opacity-70 text-right mt-1">
-              {new Date(message.createdAt).toLocaleString("en-IN", {
-                hour: "numeric",
-                minute: "numeric",
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })}
-            </p>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+                {/* Messages Container */}
+                {!loading && messages?.length > 0 && (
+                  <div
+                    className="flex-1 overflow-y-auto p-4 bg-gray-900"
+                    ref={lastMessageRef}
+                  >
+                    <div className="space-y-4">
+                      {messages.map((message, index) => (
+                        <div
+                          key={message._id || index}
+                          className={`flex ${
+                            message.senderId === authUser._id
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
+                              message.senderId === authUser._id
+                                ? "bg-blue-600 text-white rounded-br-none"
+                                : "bg-gray-700 text-white rounded-bl-none"
+                            }`}
+                          >
+                            <p className="text-sm">{message.message}</p>
+                            <p className="text-xs opacity-70 text-right mt-1">
+                              {new Date(message.createdAt).toLocaleString(
+                                "en-IN",
+                                {
+                                  hour: "numeric",
+                                  minute: "numeric",
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                }
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Message Input */}
               </div>
               <div className="p-4 border-t border-gray-700 bg-gray-800">
-                <form onSubmit={handleSubmit} className="flex items-center space-x-3">
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex items-center space-x-3"
+                >
                   <input
                     type="text"
                     value={newMessage}

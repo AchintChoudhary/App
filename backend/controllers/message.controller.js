@@ -33,8 +33,8 @@ if(newMessages){
 await Promise.all([chats.save(),newMessages.save()])
 
 const receiverSocketId=getReceiverSocketId(receiverId)
-if(receiverId){
-    io.to(receiverSocketId).emit('newMesssage',newMessages)
+if(receiverSocketId){
+    io.to(receiverSocketId).emit('newMessage',newMessages)
 }
 
 
