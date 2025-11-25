@@ -41,3 +41,19 @@
 .message-animation {
   animation: messageSlide 0.3s ease-out;
 }
+/* Ensure proper height for messages container */
+.h-screen {
+  height: 100vh;
+}
+
+/* Fix for potential overflow issues */
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+/* Ensure messages container doesn't collapse */
+.bg-gray-900 {
+  min-height: 0; /* Important for flex children */
+}
+
+

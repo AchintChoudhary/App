@@ -21,6 +21,7 @@ const MessageContainer = () => {
     setMessages,
     setSelectedConversation,
     messages,
+    addMessage,
   } = userConversation();
 
   const [loading, setLoading] = useState(false);
@@ -32,17 +33,22 @@ const MessageContainer = () => {
     }, 100);
   }, [messages]);
 
-  useEffect(() => {
-    socket?.on("newMessage", (newMessage) => {
+// NEW CODE - Fixed
+useEffect(() => {
+    if (!socket) return;
+    
+    const handleNewMessage = (incomingMessage) => {
       const sound = new Audio(notify);
-
       sound.play();
-      setMessages([...messages, newMessage]);
-    });
-    return () => {
-      socket?.off("newMessage");
+      addMessage(incomingMessage);
     };
-  }, [socket, setMessages, messages]);
+
+    socket.on("newMessage", handleNewMessage);
+    
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+}, [socket, addMessage]);
 
   useEffect(() => {
     const getMessage = async () => {
@@ -88,7 +94,7 @@ const MessageContainer = () => {
       }
 
       setLoading(false);
-      setMessages([...messages, data]);
+      addMessage(data);
       setNewMessage("");
     } catch (error) {
       console.log(error.message);
@@ -169,17 +175,18 @@ const MessageContainer = () => {
                     </p>
                   </div>
                 )}
-                {/* Messages Container */}
+                
                 {/* Messages Container */}
                 {!loading && messages?.length > 0 && (
                   <div
                     className="flex-1 overflow-y-auto p-4 bg-gray-900"
                     ref={lastMessageRef}
                   >
-                    <div className="space-y-4">
+                    <div className="space-y-4" >
                       {messages.map((message, index) => (
                         <div
                           key={message._id || index}
+                          
                           className={`flex ${
                             message.senderId === authUser._id
                               ? "justify-end"
