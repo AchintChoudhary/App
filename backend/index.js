@@ -10,7 +10,9 @@ import userRouter from "./routes/user.routes.js"
 import messageRouter from "./routes/message.routes.js"
 import cookieParser from 'cookie-parser'
 import getUser from './routes/get.user.routes.js'
+import path from 'path';
 
+const __dirname=path.resolve()
 // MongoDB connection
   connect(mongoURL) 
   .then(() => {
@@ -36,11 +38,13 @@ app.use("/users",userRouter)
  app.use("/messages",messageRouter)  
 app.use("/search",getUser)
 
+app.use(express.static(path.join(__dirname,"frontend/dist")))
 
 
 
-app.get('/',(req,res)=>{
-    res.send("Chat app")
+app.get('*',(req,res)=>{
+    res.sendFile(path.join(__dirname,"frontend","dist","index.html"))
+
 })
 
 
